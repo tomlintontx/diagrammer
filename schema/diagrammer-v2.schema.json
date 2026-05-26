@@ -105,7 +105,7 @@
           "type": "object",
           "required": ["x", "y", "w", "h"],
           "properties": {
-            "type": { "enum": ["rect", "ellipse", "diamond"] },
+            "type": { "enum": ["rect", "ellipse", "diamond", "triangle"] },
             "x": { "type": "number" },
             "y": { "type": "number" },
             "w": { "type": "number", "minimum": 0, "maximum": 100000 },

@@ -42,6 +42,11 @@ export function diamond(props) {
   return baseShape('diamond', { x, y, w, h, ...rest });
 }
 
+export function triangle(props) {
+  const { x = 0, y = 0, w = 120, h = 60, ...rest } = props;
+  return baseShape('triangle', { x, y, w, h, ...rest });
+}
+
 export function textShape(props) {
   const { x = 0, y = 0, w = 120, h = 40, ...rest } = props;
   return baseShape('text', { x, y, w, h, fillColor: null, ...rest });
@@ -99,6 +104,7 @@ export function nodeFromSpec(raw) {
     case 'rect':
     case 'ellipse':
     case 'diamond':
+    case 'triangle':
       return baseShape(type, {
         id: common.id,
         x: raw.x ?? 0,

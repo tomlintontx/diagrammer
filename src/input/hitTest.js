@@ -1,8 +1,19 @@
 import { clamp, dist } from '../core/math.js';
-import { shapeBBox } from '../core/geometry.js';
+import { shapeBBox, trianglePoints } from '../core/geometry.js';
 import { getBBoxResizeHandle, canResizeShape, getLineEndpointHandle, isLineShape } from '../core/resize.js';
 import { store } from '../core/store.js';
 import { s2w, sl2wl } from '../core/viewport.js';
+
+function pointInTriangle(px, py, [[x0, y0], [x1, y1], [x2, y2]]) {
+  const sign = (p1x, p1y, p2x, p2y, p3x, p3y) =>
+    (px - p3x) * (p1y - p3y) - (p1x - p3x) * (py - p3y);
+  const d1 = sign(x0, y0, x1, y1, x2, y2);
+  const d2 = sign(x1, y1, x2, y2, x0, y0);
+  const d3 = sign(x2, y2, x0, y0, x1, y1);
+  const hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
+  const hasPos = d1 > 0 || d2 > 0 || d3 > 0;
+  return !(hasNeg && hasPos);
+}
 
 function distToSegment(px, py, ax, ay, bx, by) {
   const dx = bx - ax;
@@ -34,6 +45,17 @@ export function hitTest(s, sx, sy) {
       const dx = Math.abs(wx - cx) / (s.w / 2 + pad);
       const dy = Math.abs(wy - cy) / (s.h / 2 + pad);
       return dx + dy <= 1;
+    }
+    case 'triangle': {
+      const pts = trianglePoints(s);
+      if (pointInTriangle(wx, wy, pts)) return true;
+      const threshold = pad + sl2wl(4);
+      for (let i = 0; i < 3; i++) {
+        const [ax, ay] = pts[i];
+        const [bx, by] = pts[(i + 1) % 3];
+        if (distToSegment(wx, wy, ax, ay, bx, by) <= threshold) return true;
+      }
+      return false;
     }
     case 'arrow':
     case 'line':

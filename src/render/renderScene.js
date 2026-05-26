@@ -1,5 +1,5 @@
 import rough from 'roughjs/bundled/rough.esm.js';
-import { shapeBBox } from '../core/geometry.js';
+import { shapeBBox, trianglePoints } from '../core/geometry.js';
 import { drawResizeHandles, drawLineEndpointHandles, isLineShape, isShapeInViewport } from '../core/resize.js';
 import {
   fitTextToBox,
@@ -163,6 +163,10 @@ export function drawShape(ctx, rc, s) {
       if (s.text) drawShapeInlineText(ctx, s);
       break;
     }
+    case 'triangle':
+      rc.polygon(trianglePoints(s), opts);
+      if (s.text) drawShapeInlineText(ctx, s);
+      break;
     case 'arrow':
     case 'line':
       rc.line(s.x1, s.y1, s.x2, s.y2, opts);

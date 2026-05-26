@@ -1,9 +1,19 @@
+/** Upward-pointing triangle vertices for a box-shaped shape */
+export function trianglePoints(s) {
+  return [
+    [s.x + s.w / 2, s.y],
+    [s.x + s.w, s.y + s.h],
+    [s.x, s.y + s.h],
+  ];
+}
+
 /** Get bounding box of a shape in world coords */
 export function shapeBBox(s) {
   switch (s.type) {
     case 'rect':
     case 'ellipse':
     case 'diamond':
+    case 'triangle':
       return { x: s.x, y: s.y, w: s.w, h: s.h };
     case 'arrow':
     case 'line': {

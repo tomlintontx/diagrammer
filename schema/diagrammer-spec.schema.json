@@ -48,7 +48,7 @@
         "id": { "type": "string", "maxLength": 128 },
         "type": {
           "type": "string",
-          "enum": ["rect", "ellipse", "diamond", "text", "label"],
+          "enum": ["rect", "ellipse", "diamond", "triangle", "text", "label"],
           "default": "rect"
         },
         "label": { "type": "string", "maxLength": 65536 },

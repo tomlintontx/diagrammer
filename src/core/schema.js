@@ -17,7 +17,7 @@ import {
 } from './validation.js';
 
 const SHAPE_TYPES = new Set([
-  'rect', 'ellipse', 'diamond', 'arrow', 'line', 'pencil', 'text',
+  'rect', 'ellipse', 'diamond', 'triangle', 'arrow', 'line', 'pencil', 'text',
 ]);
 
 function styleFields(raw, styleDefaults) {
@@ -57,6 +57,7 @@ export function normalizeShape(raw, styleDefaults) {
     case 'rect':
     case 'ellipse':
     case 'diamond':
+    case 'triangle':
       return {
         ...base,
         x: Number(raw.x) || 0,

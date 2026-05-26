@@ -13,7 +13,7 @@ import {
   wrapText,
 } from '../core/textLayout.js';
 
-const TEXT_SHAPE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'text']);
+const TEXT_SHAPE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle', 'text']);
 
 export function supportsInlineText(shape) {
   return TEXT_SHAPE_TYPES.has(shape?.type);

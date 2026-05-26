@@ -101,7 +101,7 @@ export function render() {
   const sig = [...store.selectedIds].sort().join(',');
   if (sig !== store._lastSelectionSig) {
     store._lastSelectionSig = sig;
-    if (store.selectedIds.size > 0 && typeof store.onSelectionChange === 'function') {
+    if (typeof store.onSelectionChange === 'function') {
       store.onSelectionChange();
     }
   }

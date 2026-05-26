@@ -165,6 +165,9 @@ function onKeyDown(e) {
     case 'D':
       setTool('diamond');
       break;
+    case '3':
+      setTool('triangle');
+      break;
     case 'a':
     case 'A':
       setTool('arrow');

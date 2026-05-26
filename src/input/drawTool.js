@@ -13,7 +13,7 @@ import { startRubberBand } from './rubberBand.js';
 
 export { resetTextToolPlacement } from './textPlacement.js';
 
-const ONE_SHOT_SHAPE_TYPES = new Set(['rect', 'ellipse', 'diamond']);
+const ONE_SHOT_SHAPE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle']);
 
 export function eraseAt(sx, sy) {
   const hit = hitShape(sx, sy);
@@ -141,7 +141,7 @@ export function finishDrawing() {
   store.currentShape = null;
   store.arrowSnapPoint = null;
 
-  if (s.type === 'rect' || s.type === 'ellipse' || s.type === 'diamond') {
+  if (s.type === 'rect' || s.type === 'ellipse' || s.type === 'diamond' || s.type === 'triangle') {
     if (s.w < 4 && s.h < 4) {
       s.w = 120;
       s.h = 80;

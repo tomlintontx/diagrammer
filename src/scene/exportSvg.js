@@ -1,3 +1,4 @@
+import { trianglePoints } from '../core/geometry.js';
 import {
   fitTextToBox,
   INLINE_TEXT_PADDING_X,
@@ -177,6 +178,15 @@ function shapeToSvg(s, ox, oy) {
       const cx = s.x + s.w / 2 + ox;
       const cy = s.y + s.h / 2 + oy;
       const pts = `${cx},${s.y + oy} ${s.x + s.w + ox},${cy} ${cx},${s.y + s.h + oy} ${s.x + ox},${cy}`;
+      return [
+        `<polygon points="${esc(pts)}" ${base}/>`,
+        inlineTextSvg(s, ox, oy),
+      ].filter(Boolean).join('\n');
+    }
+    case 'triangle': {
+      const pts = trianglePoints(s)
+        .map(([px, py]) => `${px + ox},${py + oy}`)
+        .join(' ');
       return [
         `<polygon points="${esc(pts)}" ${base}/>`,
         inlineTextSvg(s, ox, oy),

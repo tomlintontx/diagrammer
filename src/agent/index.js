@@ -12,6 +12,7 @@ export {
   rect,
   ellipse,
   diamond,
+  triangle,
   textShape,
   line,
   arrow,

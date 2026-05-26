@@ -3,6 +3,38 @@ import { store } from '../core/store.js';
 import { applyStyleToSelection } from '../core/commands.js';
 import { saveHistory } from '../core/history.js';
 
+const FILLABLE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle']);
+const CONNECTOR_TYPES = new Set(['arrow', 'line']);
+const TEXT_CAPABLE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle', 'text']);
+
+function selectedShapes() {
+  return store.shapes.filter((shape) => store.selectedIds.has(shape.id));
+}
+
+function allSelectedMatch(shapes, predicate) {
+  return shapes.length > 0 && shapes.every(predicate);
+}
+
+function setSectionVisible(controlId, visible) {
+  const section = document.getElementById(controlId)?.closest('.panel-section');
+  section?.classList.toggle('is-hidden', !visible);
+}
+
+function updateVisibleSections(shapes) {
+  const hasSelection = shapes.length > 0;
+  const canFill = allSelectedMatch(shapes, (shape) => FILLABLE_TYPES.has(shape.type));
+  const canUseArrowheads = allSelectedMatch(shapes, (shape) => CONNECTOR_TYPES.has(shape.type));
+  const canEditText = allSelectedMatch(shapes, (shape) => TEXT_CAPABLE_TYPES.has(shape.type));
+
+  setSectionVisible('fill-swatches', !hasSelection || canFill);
+  setSectionVisible('fill-style-select', !hasSelection || canFill);
+  setSectionVisible('arrow-direction-select', canUseArrowheads);
+  setSectionVisible('font-size-input', !hasSelection || canEditText);
+  setSectionVisible('font-family-select', !hasSelection || canEditText);
+  setSectionVisible('text-align-btns', !hasSelection || canEditText);
+  setSectionVisible('text-vertical-align-btns', !hasSelection || canEditText);
+}
+
 export function initStylePanel() {
   const strokeRow = document.getElementById('stroke-swatches');
   STROKE_COLORS.forEach((color) => {
@@ -98,9 +130,11 @@ export function initStylePanel() {
 }
 
 export function updateStylePanelFromSelection() {
-  if (store.selectedIds.size === 0) return;
-  const id = [...store.selectedIds][0];
-  const s = store.shapes.find((sh) => sh.id === id);
+  const shapes = selectedShapes();
+  updateVisibleSections(shapes);
+  if (shapes.length === 0) return;
+
+  const s = shapes[0];
   if (!s) return;
 
   document.querySelectorAll('#stroke-swatches .swatch').forEach((sw) => {
