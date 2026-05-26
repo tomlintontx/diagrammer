@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Diagrammer favicon">
+  <rect width="64" height="64" rx="14" fill="#111827"/>
+  <path d="M21 23H43L52 40H30Z" fill="none" stroke="#60A5FA" stroke-width="6" stroke-linejoin="round"/>
+  <rect x="10" y="12" width="22" height="18" rx="5" fill="#F8FAFC"/>
+  <rect x="32" y="34" width="22" height="18" rx="5" fill="#F8FAFC"/>
+  <circle cx="21" cy="21" r="3" fill="#111827"/>
+  <circle cx="43" cy="43" r="3" fill="#111827"/>
+</svg>
