@@ -51,8 +51,9 @@ export function computeMoveSnap(movingIds, proposedPositions) {
     .map((id) => {
       const s = store.shapes.find((sh) => sh.id === id);
       if (!s) return null;
-      const bb = shapeBBox(s);
       const pp = proposedPositions[id];
+      if (pp?.bbox) return pp.bbox;
+      const bb = shapeBBox(s);
       if (pp) return { ...bb, x: bb.x + pp.dx, y: bb.y + pp.dy };
       return bb;
     })

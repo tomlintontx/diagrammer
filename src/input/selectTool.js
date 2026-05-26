@@ -3,6 +3,7 @@ import { sl2wl } from '../core/viewport.js';
 import { snapshotShapeGeometry } from '../core/resize.js';
 import { duplicateSelected } from '../core/commands.js';
 import { computeMoveSnap, updateConnectedArrows } from '../core/snap.js';
+import { shapeBBox } from '../core/geometry.js';
 import { startTextEditInline, supportsInlineText } from '../ui/textEditor.js';
 import {
   hitShape,
@@ -129,7 +130,15 @@ export function handleMoveDrag(sx, sy, _wx, _wy, _shiftKey) {
 
   const proposedPositions = {};
   for (const id of store.selectedIds) {
-    proposedPositions[id] = { dx: dwx, dy: dwy };
+    const s = store.shapes.find((sh) => sh.id === id);
+    const orig = store.dragStartShapePositions[id];
+    if (!s || !orig) continue;
+    const bb = shapeBBox({ ...s, ...orig });
+    proposedPositions[id] = {
+      dx: dwx,
+      dy: dwy,
+      bbox: { ...bb, x: bb.x + dwx, y: bb.y + dwy },
+    };
   }
   const { snapLines: sl, dx: snapDx, dy: snapDy } = computeMoveSnap(store.selectedIds, proposedPositions);
   store.snapLines = sl;
