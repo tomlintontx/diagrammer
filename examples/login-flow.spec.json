@@ -1,0 +1,40 @@
+{
+  "title": "Login Flow",
+  "backgroundColor": "#f8f9fa",
+  "nodes": [
+    {
+      "id": "user",
+      "type": "rect",
+      "x": 80,
+      "y": 140,
+      "w": 160,
+      "h": 80,
+      "label": "User Browser",
+      "style": { "fillColor": "#d0ebff" }
+    },
+    {
+      "id": "api",
+      "type": "rect",
+      "x": 360,
+      "y": 140,
+      "w": 160,
+      "h": 80,
+      "label": "Auth API",
+      "style": { "fillColor": "#d3f9d8" }
+    },
+    {
+      "id": "db",
+      "type": "rect",
+      "x": 640,
+      "y": 140,
+      "w": 160,
+      "h": 80,
+      "label": "Database",
+      "style": { "fillColor": "#fff3bf" }
+    }
+  ],
+  "edges": [
+    { "from": "user", "to": "api", "label": "POST /login" },
+    { "from": "api", "to": "db", "label": "verify credentials" }
+  ]
+}

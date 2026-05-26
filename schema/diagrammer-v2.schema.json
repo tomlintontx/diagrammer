@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://diagrammer.dev/schema/diagrammer-v2.schema.json",
+  "title": "Diagrammer Scene v2",
+  "description": "Canonical Diagrammer scene file format. Import this file into the Diagrammer app.",
+  "type": "object",
+  "required": ["type", "version", "shapes"],
+  "additionalProperties": true,
+  "properties": {
+    "type": { "const": "diagrammer" },
+    "version": { "type": "integer", "minimum": 1, "maximum": 2 },
+    "title": { "type": "string", "maxLength": 256 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "savedAt": { "type": "string", "format": "date-time" },
+    "appVersion": { "type": "string" },
+    "backgroundColor": { "type": "string", "maxLength": 64 },
+    "viewport": {
+      "type": "object",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "zoom": { "type": "number", "minimum": 0.1, "maximum": 8 }
+      },
+      "additionalProperties": false
+    },
+    "styleDefaults": { "$ref": "#/$defs/styleDefaults" },
+    "shapes": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/shape" }
+    }
+  },
+  "$defs": {
+    "styleDefaults": {
+      "type": "object",
+      "properties": {
+        "strokeColor": { "type": "string", "maxLength": 64 },
+        "fillColor": { "type": ["string", "null"], "maxLength": 64 },
+        "strokeWidth": { "type": "number", "minimum": 0.5, "maximum": 24 },
+        "roughness": { "type": "number", "minimum": 0, "maximum": 3 },
+        "fontSize": { "type": "number", "minimum": 8, "maximum": 128 },
+        "fontFamily": {
+          "type": "string",
+          "enum": ["Caveat", "Virgil", "Arial", "Georgia", "monospace"]
+        },
+        "textAlign": { "type": "string", "enum": ["left", "center", "right"] },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "strokeStyle": { "type": "string", "enum": ["solid", "dashed", "dotted"] },
+        "fillStyle": {
+          "type": "string",
+          "enum": ["solid", "hachure", "cross-hatch", "zigzag"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "styleFields": {
+      "type": "object",
+      "properties": {
+        "strokeColor": { "type": "string", "maxLength": 64 },
+        "fillColor": { "type": ["string", "null"], "maxLength": 64 },
+        "strokeWidth": { "type": "number", "minimum": 0.5, "maximum": 24 },
+        "roughness": { "type": "number", "minimum": 0, "maximum": 3 },
+        "fontSize": { "type": "number", "minimum": 8, "maximum": 128 },
+        "fontFamily": {
+          "type": "string",
+          "enum": ["Caveat", "Virgil", "Arial", "Georgia", "monospace"]
+        },
+        "textAlign": { "type": "string", "enum": ["left", "center", "right"] },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "strokeStyle": { "type": "string", "enum": ["solid", "dashed", "dotted"] },
+        "fillStyle": {
+          "type": "string",
+          "enum": ["solid", "hachure", "cross-hatch", "zigzag"]
+        },
+        "text": { "type": "string", "maxLength": 65536 },
+        "seed": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+      },
+      "additionalProperties": false
+    },
+    "shape": {
+      "oneOf": [
+        { "$ref": "#/$defs/boxShape" },
+        { "$ref": "#/$defs/connectorShape" },
+        { "$ref": "#/$defs/pencilShape" },
+        { "$ref": "#/$defs/textShape" }
+      ]
+    },
+    "shapeBase": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string" }
+      },
+      "allOf": [{ "$ref": "#/$defs/styleFields" }]
+    },
+    "boxShape": {
+      "allOf": [
+        { "$ref": "#/$defs/shapeBase" },
+        {
+          "type": "object",
+          "required": ["x", "y", "w", "h"],
+          "properties": {
+            "type": { "enum": ["rect", "ellipse", "diamond"] },
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "w": { "type": "number", "minimum": 0, "maximum": 100000 },
+            "h": { "type": "number", "minimum": 0, "maximum": 100000 }
+          }
+        }
+      ]
+    },
+    "connectorShape": {
+      "allOf": [
+        { "$ref": "#/$defs/shapeBase" },
+        {
+          "type": "object",
+          "required": ["x1", "y1", "x2", "y2"],
+          "properties": {
+            "type": { "enum": ["arrow", "line"] },
+            "x1": { "type": "number" },
+            "y1": { "type": "number" },
+            "x2": { "type": "number" },
+            "y2": { "type": "number" },
+            "fromShapeId": { "type": ["string", "null"], "maxLength": 128 },
+            "fromSide": { "type": ["string", "null"], "enum": ["top", "bottom", "left", "right", null] },
+            "toShapeId": { "type": ["string", "null"], "maxLength": 128 },
+            "toSide": { "type": ["string", "null"], "enum": ["top", "bottom", "left", "right", null] }
+          }
+        }
+      ]
+    },
+    "pencilShape": {
+      "allOf": [
+        { "$ref": "#/$defs/shapeBase" },
+        {
+          "type": "object",
+          "required": ["points"],
+          "properties": {
+            "type": { "const": "pencil" },
+            "points": {
+              "type": "array",
+              "maxItems": 50000,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": { "type": "number" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "textShape": {
+      "allOf": [
+        { "$ref": "#/$defs/shapeBase" },
+        {
+          "type": "object",
+          "required": ["x", "y", "w", "h"],
+          "properties": {
+            "type": { "const": "text" },
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "w": { "type": "number", "minimum": 10, "maximum": 10000 },
+            "h": { "type": "number", "minimum": 10, "maximum": 10000 }
+          }
+        }
+      ]
+    }
+  }
+}

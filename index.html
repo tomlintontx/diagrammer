@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagrammer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div id="toolbar" role="toolbar" aria-label="Drawing tools">
+    <button class="tool-btn active" data-tool="select" title="Select (V)" aria-label="Select" aria-pressed="true">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M3 2l12 7-6 1-3 6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="tooltip">Select (V)</span>
+    </button>
+    <div class="toolbar-sep"></div>
+    <button class="tool-btn" data-tool="rect" title="Rectangle (R)" aria-label="Rectangle">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <rect x="2" y="4" width="14" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="tooltip">Rectangle (R)</span>
+    </button>
+    <button class="tool-btn" data-tool="ellipse" title="Ellipse (E)" aria-label="Ellipse">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <ellipse cx="9" cy="9" rx="7" ry="5" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="tooltip">Ellipse (E)</span>
+    </button>
+    <button class="tool-btn" data-tool="diamond" title="Diamond (D)" aria-label="Diamond">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <polygon points="9,2 16,9 9,16 2,9" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="tooltip">Diamond (D)</span>
+    </button>
+    <button class="tool-btn" data-tool="arrow" title="Arrow (A)" aria-label="Arrow">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <line x1="3" y1="15" x2="14" y2="4" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M14 4l-5 1 4 4z" fill="currentColor"/>
+      </svg>
+      <span class="tooltip">Arrow (A)</span>
+    </button>
+    <button class="tool-btn" data-tool="line" title="Line (L)" aria-label="Line">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <line x1="3" y1="15" x2="15" y2="3" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="tooltip">Line (L)</span>
+    </button>
+    <button class="tool-btn" data-tool="pencil" title="Pencil (P)" aria-label="Pencil">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M3 15l2-5L13 2l3 3-8 8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+        <path d="M3 15l2-2 0 2z" fill="currentColor"/>
+      </svg>
+      <span class="tooltip">Pencil (P)</span>
+    </button>
+    <button class="tool-btn" data-tool="text" title="Text (T)" aria-label="Text">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <text x="3" y="14" font-size="13" font-family="serif" fill="currentColor">T</text>
+      </svg>
+      <span class="tooltip">Text (T)</span>
+    </button>
+    <button class="tool-btn" data-tool="eraser" title="Eraser (X)" aria-label="Eraser">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M4 14h10M6 12l7-7 3 3-7 7H6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <span class="tooltip">Eraser (X)</span>
+    </button>
+  </div>
+
+  <div id="topbar">
+    <span id="app-title">Diagrammer</span>
+    <button id="btn-save" title="Save JSON (Ctrl+S)" aria-label="Save">Save</button>
+    <label id="btn-open" class="file-label" title="Open JSON" aria-label="Open file">
+      Open
+      <input type="file" id="file-import" accept=".json,.diagrammer.json,application/json" hidden />
+    </label>
+    <button id="btn-export" aria-label="Export PNG">PNG</button>
+    <button id="btn-export-svg" aria-label="Export SVG">SVG</button>
+    <button id="btn-export-selection" aria-label="Export selection PNG">Sel PNG</button>
+    <button id="btn-help" aria-label="Keyboard shortcuts" title="Shortcuts (?)">?</button>
+  </div>
+
+  <div id="style-panel" aria-label="Style panel">
+    <div class="panel-section">
+      <div class="panel-label">Stroke</div>
+      <div class="swatch-row" id="stroke-swatches"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Fill</div>
+      <div class="swatch-row" id="fill-swatches"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Stroke Width</div>
+      <div class="stroke-btns" id="stroke-width-btns">
+        <button class="stroke-btn active" data-width="1" aria-label="Thin stroke"><span style="height:1px"></span></button>
+        <button class="stroke-btn" data-width="2" aria-label="Medium stroke"><span style="height:2px"></span></button>
+        <button class="stroke-btn" data-width="4" aria-label="Thick stroke"><span style="height:4px"></span></button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Stroke style</div>
+      <select id="stroke-style-select" aria-label="Stroke style">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+        <option value="dotted">Dotted</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Fill style</div>
+      <select id="fill-style-select" aria-label="Fill style">
+        <option value="solid">Solid</option>
+        <option value="hachure">Hachure</option>
+        <option value="cross-hatch">Cross-hatch</option>
+        <option value="zigzag">Zigzag</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Roughness: <span id="roughness-val">1</span></div>
+      <input type="range" id="roughness-slider" min="0" max="3" step="0.5" value="1" aria-label="Roughness" />
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Opacity: <span id="opacity-val">100</span>%</div>
+      <input type="range" id="opacity-slider" min="0.1" max="1" step="0.05" value="1" aria-label="Opacity" />
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Font size</div>
+      <input type="number" id="font-size-input" min="8" max="96" value="24" aria-label="Font size" />
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Font</div>
+      <select id="font-family-select" aria-label="Font family">
+        <option value="Caveat">Caveat</option>
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="monospace">Monospace</option>
+      </select>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Text align</div>
+      <select id="text-align-select" aria-label="Text alignment">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="bottombar">
+    <button id="btn-undo" disabled aria-label="Undo">↩ Undo</button>
+    <button id="btn-redo" disabled aria-label="Redo">↪ Redo</button>
+  </div>
+
+  <div id="zoom-indicator" role="status" aria-live="polite">100%</div>
+
+  <div id="text-editor-wrap">
+    <textarea id="text-editor" rows="1" spellcheck="false" aria-label="Text editor"></textarea>
+  </div>
+
+  <div id="context-menu" role="menu">
+    <div class="ctx-item" id="ctx-front" role="menuitem">Bring to Front</div>
+    <div class="ctx-item" id="ctx-back" role="menuitem">Send to Back</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" id="ctx-delete" role="menuitem" style="color:#c00">Delete</div>
+  </div>
+
+  <div id="save-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="save-title">
+    <div class="modal-card">
+      <h2 id="save-title">Save diagram</h2>
+      <label class="save-label" for="save-filename">File name</label>
+      <div class="save-filename-row">
+        <input type="text" id="save-filename" spellcheck="false" autocomplete="off" />
+        <span class="save-extension">.diagrammer.json</span>
+      </div>
+      <div class="modal-actions">
+        <button id="save-cancel" type="button">Cancel</button>
+        <button id="save-confirm" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="help-title">
+    <div class="modal-card">
+      <h2 id="help-title">Keyboard shortcuts</h2>
+      <ul id="help-shortcuts"></ul>
+      <button id="help-close" type="button">Close</button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
