@@ -10,6 +10,7 @@ const defaults = {
   fontSize: 24,
   fontFamily: 'Caveat',
   textAlign: 'left',
+  textVerticalAlign: 'middle',
   opacity: 1,
   strokeStyle: 'solid',
   fillStyle: 'solid',
@@ -60,6 +61,7 @@ describe('schema security', () => {
     });
     expect(restored.shapes[0].strokeStyle).toBe('solid');
     expect(restored.shapes[0].fontFamily).toBe('Caveat');
+    expect(restored.shapes[0].textVerticalAlign).toBe('middle');
   });
 
   it('throws on unsupported versions', () => {

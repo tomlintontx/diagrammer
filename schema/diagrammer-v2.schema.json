@@ -45,6 +45,7 @@
           "enum": ["Caveat", "Virgil", "Arial", "Georgia", "monospace"]
         },
         "textAlign": { "type": "string", "enum": ["left", "center", "right"] },
+        "textVerticalAlign": { "type": "string", "enum": ["top", "middle", "bottom"] },
         "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
         "strokeStyle": { "type": "string", "enum": ["solid", "dashed", "dotted"] },
         "fillStyle": {
@@ -67,6 +68,7 @@
           "enum": ["Caveat", "Virgil", "Arial", "Georgia", "monospace"]
         },
         "textAlign": { "type": "string", "enum": ["left", "center", "right"] },
+        "textVerticalAlign": { "type": "string", "enum": ["top", "middle", "bottom"] },
         "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
         "strokeStyle": { "type": "string", "enum": ["solid", "dashed", "dotted"] },
         "fillStyle": {

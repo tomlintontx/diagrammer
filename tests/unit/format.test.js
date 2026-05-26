@@ -6,7 +6,13 @@ describe('scene format', () => {
     const original = {
       shapes: [{ id: 'a', type: 'rect', x: 1, y: 2, w: 3, h: 4 }],
       viewport: { x: 10, y: 20, zoom: 1.5 },
-      styleDefaults: { strokeColor: '#1e1e1e', fillColor: '#fff', strokeWidth: 2, roughness: 1, fontSize: 24 },
+      styleDefaults: {
+        strokeColor: '#1e1e1e',
+        fillColor: '#fff',
+        strokeWidth: 2,
+        roughness: 1,
+        fontSize: 24,
+      },
     };
     const serialized = serializeScene(original);
     const restored = deserializeScene(serialized);
@@ -15,6 +21,8 @@ describe('scene format', () => {
     expect(restored.viewport).toEqual(original.viewport);
     expect(restored.styleDefaults.strokeWidth).toBe(2);
     expect(restored.styleDefaults.fontFamily).toBe('Caveat');
+    expect(restored.styleDefaults.textAlign).toBe('center');
+    expect(restored.styleDefaults.textVerticalAlign).toBe('middle');
   });
 
   it('rejects invalid files', () => {

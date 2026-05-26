@@ -12,7 +12,8 @@ const DEFAULT_STYLE = {
   roughness: 1,
   fontSize: 24,
   fontFamily: 'Caveat',
-  textAlign: 'left',
+  textAlign: 'center',
+  textVerticalAlign: 'middle',
   opacity: 1,
   strokeStyle: 'solid',
   fillStyle: 'solid',
@@ -50,7 +51,8 @@ function migrateScene(data) {
       if (!s.strokeStyle) s.strokeStyle = 'solid';
       if (!s.fillStyle) s.fillStyle = 'solid';
       if (!s.fontFamily) s.fontFamily = 'Caveat';
-      if (!s.textAlign) s.textAlign = 'left';
+      if (!s.textAlign) s.textAlign = 'center';
+      if (!s.textVerticalAlign) s.textVerticalAlign = 'middle';
     }
     data.version = 2;
   }

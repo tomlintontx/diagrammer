@@ -65,15 +65,29 @@ function drawStandaloneText(ctx, s) {
   ctx.restore();
 }
 
+function inlineTextX(s, padX) {
+  const align = s.textAlign || 'center';
+  if (align === 'left') return s.x + padX;
+  if (align === 'right') return s.x + s.w - padX;
+  return s.x + s.w / 2;
+}
+
+function inlineTextStartY(s, padY, fit) {
+  const align = s.textVerticalAlign || 'middle';
+  if (align === 'top') return s.y + padY + fit.lineHeight / 2;
+  if (align === 'bottom') return s.y + s.h - padY - fit.totalHeight + fit.lineHeight / 2;
+  return s.y + s.h / 2 - fit.totalHeight / 2 + fit.lineHeight / 2;
+}
+
 function drawShapeInlineText(ctx, s) {
   if (!s.text) return;
   const padX = Math.min(INLINE_TEXT_PADDING_X, Math.max(4, (s.w || 100) / 8));
   const padY = Math.min(INLINE_TEXT_PADDING_Y, Math.max(4, (s.h || 60) / 8));
   const maxWidth = Math.max(10, (s.w || 100) - padX * 2);
   const maxHeight = Math.max(10, (s.h || 60) - padY * 2);
-  const cx = s.x + s.w / 2;
-  const cy = s.y + s.h / 2;
   const fit = fitTextToBox(ctx, s, s.text, maxWidth, maxHeight);
+  const textX = inlineTextX(s, padX);
+  const startY = inlineTextStartY(s, padY, fit);
 
   ctx.save();
   ctx.beginPath();
@@ -82,11 +96,10 @@ function drawShapeInlineText(ctx, s) {
   ctx.globalAlpha = s.opacity != null ? s.opacity : 1;
   ctx.font = fit.font;
   ctx.fillStyle = s.strokeColor || '#1e1e1e';
-  ctx.textAlign = 'center';
+  ctx.textAlign = s.textAlign || 'center';
   ctx.textBaseline = 'middle';
-  const startY = cy - fit.totalHeight / 2 + fit.lineHeight / 2;
   fit.lines.forEach((line, i) => {
-    ctx.fillText(line, cx, startY + i * fit.lineHeight, maxWidth);
+    ctx.fillText(line, textX, startY + i * fit.lineHeight, maxWidth);
   });
   ctx.restore();
 }

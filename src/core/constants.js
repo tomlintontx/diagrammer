@@ -24,5 +24,6 @@ export const STROKE_STYLES = ['solid', 'dashed', 'dotted'];
 export const FILL_STYLES = ['solid', 'hachure', 'cross-hatch', 'zigzag'];
 export const FONT_FAMILIES = ['Caveat', 'Virgil', 'Arial', 'Georgia', 'monospace'];
 export const TEXT_ALIGNS = ['left', 'center', 'right'];
+export const TEXT_VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];
 export const NUDGE_SMALL = 1;
 export const NUDGE_LARGE = 10;

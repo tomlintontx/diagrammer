@@ -61,4 +61,28 @@ describe('exportSvg security', () => {
     expect(svg).toContain('dominant-baseline="middle"');
     expect(svg).toContain('Centered');
   });
+
+  it('exports inline text horizontal and vertical alignment', () => {
+    const svg = exportSceneToSvg(
+      [{
+        type: 'rect',
+        x: 0,
+        y: 0,
+        w: 120,
+        h: 60,
+        text: 'Bottom right',
+        textAlign: 'right',
+        textVerticalAlign: 'bottom',
+        fontSize: 18,
+        fontFamily: 'Caveat',
+        strokeColor: '#000',
+        fillColor: '#ffd8d8',
+        strokeWidth: 1,
+        opacity: 1,
+      }],
+      { minX: 0, minY: 0, width: 120, height: 60 },
+    );
+    expect(svg).toContain('x="105"');
+    expect(svg).toContain('text-anchor="end"');
+  });
 });

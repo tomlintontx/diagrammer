@@ -78,8 +78,19 @@ export function initStylePanel() {
   document.getElementById('font-family-select')?.addEventListener('change', (e) => {
     applyStyleToSelection('fontFamily', e.target.value);
   });
-  document.getElementById('text-align-select')?.addEventListener('change', (e) => {
-    applyStyleToSelection('textAlign', e.target.value);
+  document.querySelectorAll('[data-text-align]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-text-align]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyStyleToSelection('textAlign', btn.dataset.textAlign);
+    });
+  });
+  document.querySelectorAll('[data-text-vertical-align]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-text-vertical-align]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyStyleToSelection('textVerticalAlign', btn.dataset.textVerticalAlign);
+    });
   });
 }
 
@@ -124,6 +135,13 @@ export function updateStylePanelFromSelection() {
   if (fontSize && s.fontSize) fontSize.value = s.fontSize;
   const fontFamily = document.getElementById('font-family-select');
   if (fontFamily && s.fontFamily) fontFamily.value = s.fontFamily;
-  const textAlign = document.getElementById('text-align-select');
-  if (textAlign && s.textAlign) textAlign.value = s.textAlign;
+  document.querySelectorAll('[data-text-align]').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.textAlign === (s.textAlign || 'center'));
+  });
+  document.querySelectorAll('[data-text-vertical-align]').forEach((btn) => {
+    btn.classList.toggle(
+      'active',
+      btn.dataset.textVerticalAlign === (s.textVerticalAlign || 'middle'),
+    );
+  });
 }

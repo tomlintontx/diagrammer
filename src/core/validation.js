@@ -5,6 +5,7 @@ import {
   MAX_TEXT_LENGTH,
   STROKE_STYLES,
   TEXT_ALIGNS,
+  TEXT_VERTICAL_ALIGNS,
 } from './constants.js';
 
 const COLOR_RE = /^(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|none|[a-zA-Z]+)$/;
@@ -45,6 +46,11 @@ export function sanitizeStyleDefaults(raw, defaults) {
     fontSize: clampNumber(merged.fontSize, 8, 128, defaults.fontSize),
     fontFamily: sanitizeFontFamily(merged.fontFamily, defaults.fontFamily),
     textAlign: sanitizeEnum(merged.textAlign, TEXT_ALIGNS, defaults.textAlign),
+    textVerticalAlign: sanitizeEnum(
+      merged.textVerticalAlign,
+      TEXT_VERTICAL_ALIGNS,
+      defaults.textVerticalAlign,
+    ),
     opacity: clampNumber(merged.opacity, 0, 1, defaults.opacity),
     strokeStyle: sanitizeEnum(merged.strokeStyle, STROKE_STYLES, defaults.strokeStyle),
     fillStyle: sanitizeEnum(merged.fillStyle, FILL_STYLES, defaults.fillStyle),

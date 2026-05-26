@@ -8,6 +8,7 @@ const DEFAULT_STYLE = {
   fontSize: 24,
   fontFamily: 'Caveat',
   textAlign: 'center',
+  textVerticalAlign: 'middle',
   opacity: 1,
   strokeStyle: 'solid',
   fillStyle: 'solid',

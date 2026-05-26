@@ -25,6 +25,26 @@ function getMeasureContext() {
   };
 }
 
+function inlineTextX(s, padX, ox) {
+  const align = s.textAlign || 'center';
+  if (align === 'left') return s.x + padX + ox;
+  if (align === 'right') return s.x + s.w - padX + ox;
+  return s.x + s.w / 2 + ox;
+}
+
+function inlineTextStartY(s, padY, fit, oy) {
+  const align = s.textVerticalAlign || 'middle';
+  if (align === 'top') return s.y + padY + fit.lineHeight / 2 + oy;
+  if (align === 'bottom') return s.y + s.h - padY - fit.totalHeight + fit.lineHeight / 2 + oy;
+  return s.y + s.h / 2 - fit.totalHeight / 2 + fit.lineHeight / 2 + oy;
+}
+
+function svgTextAnchor(align) {
+  if (align === 'left') return 'start';
+  if (align === 'right') return 'end';
+  return 'middle';
+}
+
 function inlineTextSvg(s, ox, oy) {
   if (!s.text) return '';
   const padX = Math.min(INLINE_TEXT_PADDING_X, Math.max(4, (s.w || 100) / 8));
@@ -36,15 +56,15 @@ function inlineTextSvg(s, ox, oy) {
     Math.max(10, (s.w || 100) - padX * 2),
     Math.max(10, (s.h || 60) - padY * 2),
   );
-  const cx = s.x + s.w / 2 + ox;
-  const cy = s.y + s.h / 2 + oy;
-  const startY = cy - fit.totalHeight / 2 + fit.lineHeight / 2;
+  const textX = inlineTextX(s, padX, ox);
+  const startY = inlineTextStartY(s, padY, fit, oy);
+  const anchor = svgTextAnchor(s.textAlign || 'center');
   const fill = esc(s.strokeColor || '#1e1e1e');
   const opacity = esc(s.opacity != null ? s.opacity : 1);
   const ff = esc(s.fontFamily || 'Caveat');
   return fit.lines
     .map((line, i) => (
-      `<text x="${esc(cx)}" y="${esc(startY + i * fit.lineHeight)}" font-size="${esc(fit.fontSize)}" font-family="${ff}" fill="${fill}" opacity="${opacity}" text-anchor="middle" dominant-baseline="middle">${esc(line)}</text>`
+      `<text x="${esc(textX)}" y="${esc(startY + i * fit.lineHeight)}" font-size="${esc(fit.fontSize)}" font-family="${ff}" fill="${fill}" opacity="${opacity}" text-anchor="${anchor}" dominant-baseline="middle">${esc(line)}</text>`
     ))
     .join('\n');
 }
@@ -95,10 +115,11 @@ function shapeToSvg(s, ox, oy) {
       const fs = esc(s.fontSize || 24);
       const ff = esc(s.fontFamily || 'Caveat');
       const lines = (s.text || '').split('\n');
+      const anchor = svgTextAnchor(s.textAlign || 'left');
       return lines
         .map(
           (line, i) =>
-            `<text x="${esc(s.x + ox)}" y="${esc(s.y + oy + (s.fontSize || 24) * (i + 1))}" font-size="${fs}" font-family="${ff}" fill="${stroke}" opacity="${opacity}">${esc(line)}</text>`,
+            `<text x="${esc(s.x + ox)}" y="${esc(s.y + oy + (s.fontSize || 24) * (i + 1))}" font-size="${fs}" font-family="${ff}" fill="${stroke}" opacity="${opacity}" text-anchor="${anchor}">${esc(line)}</text>`,
         )
         .join('\n');
     }

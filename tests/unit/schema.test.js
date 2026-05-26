@@ -9,6 +9,7 @@ const defaults = {
   fontSize: 24,
   fontFamily: 'Caveat',
   textAlign: 'left',
+  textVerticalAlign: 'middle',
   opacity: 1,
   strokeStyle: 'solid',
   fillStyle: 'solid',
@@ -20,6 +21,7 @@ describe('shape schema', () => {
     expect(s.type).toBe('rect');
     expect(s.opacity).toBe(1);
     expect(s.strokeStyle).toBe('solid');
+    expect(s.textVerticalAlign).toBe('middle');
   });
 
   it('drops invalid shapes', () => {

@@ -1,5 +1,5 @@
 import { uid } from './math.js';
-import { MAX_SHAPES } from './constants.js';
+import { MAX_SHAPES, FILL_STYLES, STROKE_STYLES, TEXT_ALIGNS, TEXT_VERTICAL_ALIGNS } from './constants.js';
 import {
   clampNumber,
   sanitizeColor,
@@ -8,7 +8,6 @@ import {
   sanitizePencilPoints,
   sanitizeText,
 } from './validation.js';
-import { FILL_STYLES, STROKE_STYLES, TEXT_ALIGNS } from './constants.js';
 
 const SHAPE_TYPES = new Set([
   'rect', 'ellipse', 'diamond', 'arrow', 'line', 'pencil', 'text',
@@ -23,6 +22,11 @@ function styleFields(raw, styleDefaults) {
     fontSize: clampNumber(raw.fontSize, 8, 128, styleDefaults.fontSize),
     fontFamily: sanitizeFontFamily(raw.fontFamily, styleDefaults.fontFamily),
     textAlign: sanitizeEnum(raw.textAlign, TEXT_ALIGNS, styleDefaults.textAlign),
+    textVerticalAlign: sanitizeEnum(
+      raw.textVerticalAlign,
+      TEXT_VERTICAL_ALIGNS,
+      styleDefaults.textVerticalAlign,
+    ),
     opacity: clampNumber(raw.opacity, 0, 1, styleDefaults.opacity ?? 1),
     strokeStyle: sanitizeEnum(raw.strokeStyle, STROKE_STYLES, styleDefaults.strokeStyle),
     fillStyle: sanitizeEnum(raw.fillStyle, FILL_STYLES, styleDefaults.fillStyle),

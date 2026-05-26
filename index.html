@@ -144,12 +144,20 @@
       </select>
     </div>
     <div class="panel-section">
-      <div class="panel-label">Text align</div>
-      <select id="text-align-select" aria-label="Text alignment">
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-        <option value="right">Right</option>
-      </select>
+      <div class="panel-label">Text horizontal</div>
+      <div class="align-btns" id="text-align-btns" role="group" aria-label="Horizontal text alignment">
+        <button class="align-btn" data-text-align="left" type="button" aria-label="Align text left">Left</button>
+        <button class="align-btn active" data-text-align="center" type="button" aria-label="Align text center">Center</button>
+        <button class="align-btn" data-text-align="right" type="button" aria-label="Align text right">Right</button>
+      </div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Text vertical</div>
+      <div class="align-btns" id="text-vertical-align-btns" role="group" aria-label="Vertical text alignment">
+        <button class="align-btn" data-text-vertical-align="top" type="button" aria-label="Align text top">Top</button>
+        <button class="align-btn active" data-text-vertical-align="middle" type="button" aria-label="Align text middle">Middle</button>
+        <button class="align-btn" data-text-vertical-align="bottom" type="button" aria-label="Align text bottom">Bottom</button>
+      </div>
     </div>
   </div>
 

@@ -143,7 +143,7 @@ export function startTextEditInline(shapeId, options = {}) {
   }
   ta.value = replacing ? options.replaceWith : s.text || '';
   ta.style.fontFamily = `'${sanitizeFontFamily(s.fontFamily, 'Caveat')}', cursive`;
-  ta.style.textAlign = 'center';
+  ta.style.textAlign = s.textAlign || 'center';
   ta.style.color = s.strokeColor || '#1e1e1e';
   ta.style.background = s.fillColor || 'transparent';
   ta.style.border = '1.5px dashed #1a73e8';
@@ -175,7 +175,10 @@ export function startTextEditInline(shapeId, options = {}) {
       Math.max(10, overlayW - padX * 2),
       Math.max(10, overlayH - padY * 2),
     );
-    const verticalPad = Math.max(padY, (overlayH - fit.totalHeight) / 2);
+    const remainingY = Math.max(0, overlayH - fit.totalHeight);
+    let verticalPad = Math.max(padY, remainingY / 2);
+    if (s.textVerticalAlign === 'top') verticalPad = padY;
+    if (s.textVerticalAlign === 'bottom') verticalPad = Math.max(padY, overlayH - fit.totalHeight - padY);
     ta.style.fontSize = `${fit.fontSize}px`;
     ta.style.lineHeight = `${fit.lineHeight}px`;
     ta.style.padding = `${verticalPad}px ${padX}px`;

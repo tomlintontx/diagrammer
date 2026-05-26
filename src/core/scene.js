@@ -13,6 +13,7 @@ export function makeShape(type, props) {
     fontSize: styleDefaults.fontSize,
     fontFamily: styleDefaults.fontFamily,
     textAlign: styleDefaults.textAlign,
+    textVerticalAlign: styleDefaults.textVerticalAlign,
     opacity: styleDefaults.opacity,
     strokeStyle: styleDefaults.strokeStyle,
     fillStyle: styleDefaults.fillStyle,
