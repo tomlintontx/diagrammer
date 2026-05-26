@@ -9,6 +9,7 @@ export function applyStyleToSelection(prop, value, recordHistory = true) {
   if (store.selectedIds.size > 0) {
     for (const s of store.shapes) {
       if (store.selectedIds.has(s.id)) {
+        if (prop === 'arrowDirection' && s.type !== 'arrow' && s.type !== 'line') continue;
         s[prop] = value;
       }
     }

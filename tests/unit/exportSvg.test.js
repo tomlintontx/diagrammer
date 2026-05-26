@@ -39,6 +39,29 @@ describe('exportSvg security', () => {
     expect(svg).toContain('&lt;script&gt;');
   });
 
+  it('clips and wraps standalone text to its box', () => {
+    const svg = exportSceneToSvg(
+      [{
+        id: 'freeform',
+        type: 'text',
+        x: 0,
+        y: 0,
+        w: 80,
+        h: 40,
+        text: 'This standalone text should wrap',
+        fontSize: 16,
+        fontFamily: 'Caveat',
+        strokeColor: '#000',
+        opacity: 1,
+      }],
+      { minX: 0, minY: 0, width: 100, height: 60 },
+    );
+    expect(svg).toContain('<clipPath id="clip-freeform">');
+    expect(svg).toContain('width="80" height="40"');
+    expect(svg).toContain('standa');
+    expect(svg).toContain('text-anchor="start"');
+  });
+
   it('exports centered inline text for box shapes', () => {
     const svg = exportSceneToSvg(
       [{
@@ -84,5 +107,25 @@ describe('exportSvg security', () => {
     );
     expect(svg).toContain('x="105"');
     expect(svg).toContain('text-anchor="end"');
+  });
+
+  it('exports bidirectional arrowheads', () => {
+    const svg = exportSceneToSvg(
+      [{
+        type: 'arrow',
+        x1: 0,
+        y1: 0,
+        x2: 40,
+        y2: 0,
+        arrowDirection: 'both',
+        strokeColor: '#000',
+        strokeWidth: 2,
+        opacity: 1,
+      }],
+      { minX: -20, minY: -20, width: 80, height: 40 },
+    );
+
+    expect(svg).toContain('<line');
+    expect(svg.match(/<path d="/g)).toHaveLength(2);
   });
 });

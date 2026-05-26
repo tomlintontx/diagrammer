@@ -69,6 +69,9 @@ export function initStylePanel() {
   document.getElementById('stroke-style-select')?.addEventListener('change', (e) => {
     applyStyleToSelection('strokeStyle', e.target.value);
   });
+  document.getElementById('arrow-direction-select')?.addEventListener('change', (e) => {
+    applyStyleToSelection('arrowDirection', e.target.value);
+  });
   document.getElementById('fill-style-select')?.addEventListener('change', (e) => {
     applyStyleToSelection('fillStyle', e.target.value);
   });
@@ -129,6 +132,10 @@ export function updateStylePanelFromSelection() {
 
   const strokeStyle = document.getElementById('stroke-style-select');
   if (strokeStyle && s.strokeStyle) strokeStyle.value = s.strokeStyle;
+  const arrowDirection = document.getElementById('arrow-direction-select');
+  if (arrowDirection) {
+    arrowDirection.value = s.arrowDirection || (s.type === 'line' ? 'none' : 'end');
+  }
   const fillStyle = document.getElementById('fill-style-select');
   if (fillStyle && s.fillStyle) fillStyle.value = s.fillStyle;
   const fontSize = document.getElementById('font-size-input');

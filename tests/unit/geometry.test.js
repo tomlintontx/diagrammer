@@ -16,6 +16,19 @@ describe('shapeBBox', () => {
     const bb = shapeBBox({ type: 'line', x1: 0, y1: 0, x2: 30, y2: 40 });
     expect(bb).toEqual({ x: 0, y: 0, w: 30, h: 40 });
   });
+
+  it('uses the chosen text box dimensions for text bounds', () => {
+    const bb = shapeBBox({
+      type: 'text',
+      x: 5,
+      y: 10,
+      w: 90,
+      h: 30,
+      text: 'one\ntwo\nthree',
+      fontSize: 24,
+    });
+    expect(bb).toEqual({ x: 5, y: 10, w: 90, h: 30 });
+  });
 });
 
 describe('normalizeRect', () => {

@@ -1,5 +1,12 @@
 import { uid } from './math.js';
-import { MAX_SHAPES, FILL_STYLES, STROKE_STYLES, TEXT_ALIGNS, TEXT_VERTICAL_ALIGNS } from './constants.js';
+import {
+  ARROW_DIRECTIONS,
+  MAX_SHAPES,
+  FILL_STYLES,
+  STROKE_STYLES,
+  TEXT_ALIGNS,
+  TEXT_VERTICAL_ALIGNS,
+} from './constants.js';
 import {
   clampNumber,
   sanitizeColor,
@@ -66,6 +73,11 @@ export function normalizeShape(raw, styleDefaults) {
         y1: Number(raw.y1) || 0,
         x2: Number(raw.x2) || 0,
         y2: Number(raw.y2) || 0,
+        arrowDirection: sanitizeEnum(
+          raw.arrowDirection,
+          ARROW_DIRECTIONS,
+          raw.type === 'line' ? 'none' : 'end',
+        ),
         fromShapeId: typeof raw.fromShapeId === 'string' ? raw.fromShapeId : null,
         fromSide: typeof raw.fromSide === 'string' ? raw.fromSide : null,
         toShapeId: typeof raw.toShapeId === 'string' ? raw.toShapeId : null,

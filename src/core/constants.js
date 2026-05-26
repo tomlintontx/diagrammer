@@ -22,6 +22,7 @@ export const MAX_AUTOSAVE_BYTES = 4 * 1024 * 1024;
 
 export const STROKE_STYLES = ['solid', 'dashed', 'dotted'];
 export const FILL_STYLES = ['solid', 'hachure', 'cross-hatch', 'zigzag'];
+export const ARROW_DIRECTIONS = ['none', 'end', 'start', 'both'];
 export const FONT_FAMILIES = ['Caveat', 'Virgil', 'Arial', 'Georgia', 'monospace'];
 export const TEXT_ALIGNS = ['left', 'center', 'right'];
 export const TEXT_VERTICAL_ALIGNS = ['top', 'middle', 'bottom'];

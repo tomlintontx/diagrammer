@@ -57,6 +57,7 @@ export function line(props) {
   return baseShape('line', {
     x1, y1, x2, y2,
     fillColor: null,
+    arrowDirection: 'none',
     fromShapeId, fromSide, toShapeId, toSide,
     ...rest,
   });
@@ -72,6 +73,7 @@ export function arrow(props) {
   return baseShape('arrow', {
     x1, y1, x2, y2,
     fillColor: null,
+    arrowDirection: 'end',
     fromShapeId, fromSide, toShapeId, toSide,
     ...rest,
   });

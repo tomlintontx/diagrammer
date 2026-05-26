@@ -23,6 +23,7 @@ describe('scene format', () => {
     expect(restored.styleDefaults.fontFamily).toBe('Caveat');
     expect(restored.styleDefaults.textAlign).toBe('center');
     expect(restored.styleDefaults.textVerticalAlign).toBe('middle');
+    expect(restored.styleDefaults.arrowDirection).toBe('end');
   });
 
   it('rejects invalid files', () => {

@@ -37,6 +37,7 @@ export const store = {
     opacity: 1,
     strokeStyle: 'solid',
     fillStyle: 'solid',
+    arrowDirection: 'end',
   },
   documentTitle: 'Untitled',
   backgroundColor: '#f8f9fa',

@@ -17,6 +17,7 @@ const DEFAULT_STYLE = {
   opacity: 1,
   strokeStyle: 'solid',
   fillStyle: 'solid',
+  arrowDirection: 'end',
 };
 
 export function serializeScene({
@@ -53,6 +54,8 @@ function migrateScene(data) {
       if (!s.fontFamily) s.fontFamily = 'Caveat';
       if (!s.textAlign) s.textAlign = 'center';
       if (!s.textVerticalAlign) s.textVerticalAlign = 'middle';
+      if (s.type === 'arrow' && !s.arrowDirection) s.arrowDirection = 'end';
+      if (s.type === 'line' && !s.arrowDirection) s.arrowDirection = 'none';
     }
     data.version = 2;
   }

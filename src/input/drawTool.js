@@ -24,8 +24,6 @@ export function eraseAt(sx, sy) {
 }
 
 export function handleDrawMouseDown(e, sx, sy, wx, wy) {
-  if (store.currentTool === 'text') return;
-
   if (store.currentTool === 'eraser') {
     startRubberBand(sx, sy);
     markDirty();
@@ -35,7 +33,16 @@ export function handleDrawMouseDown(e, sx, sy, wx, wy) {
   store.isDrawing = true;
   store.drawStart = { wx, wy };
 
-  if (store.currentTool === 'pencil') {
+  if (store.currentTool === 'text') {
+    store.currentShape = makeShape('text', {
+      x: wx,
+      y: wy,
+      w: 0,
+      h: 0,
+      text: '',
+      fillColor: null,
+    });
+  } else if (store.currentTool === 'pencil') {
     store.pencilPoints = [[wx, wy]];
     store.currentShape = makeShape('pencil', {
       points: [[wx, wy]],
@@ -54,6 +61,7 @@ export function handleDrawMouseDown(e, sx, sy, wx, wy) {
       x2: startWx,
       y2: startWy,
       fillColor: null,
+      arrowDirection: store.currentTool === 'line' ? 'none' : (store.styleDefaults.arrowDirection || 'end'),
       fromShapeId: snap ? snap.shapeId : null,
       fromSide: snap ? snap.side : null,
       toShapeId: null,
@@ -140,6 +148,17 @@ export function finishDrawing() {
     }
   }
 
+  if (s.type === 'text') {
+    if (s.w < 4 && s.h < 4) {
+      s.w = 200;
+      s.h = 80;
+    } else {
+      s.w = Math.max(40, s.w);
+      s.h = Math.max(30, s.h);
+    }
+    s.fillColor = null;
+  }
+
   if (s.type === 'pencil') {
     s.roughness = 0;
     s.points = simplifyPoints(store.pencilPoints);
@@ -167,6 +186,13 @@ export function finishDrawing() {
     returnToSelectAfterShape();
   } else {
     store.selectedIds.clear();
+  }
+
+  if (s.type === 'text') {
+    markTextShapeCommitted();
+    store.selectedIds = new Set([s.id]);
+    returnToSelectAfterShape();
+    startTextEdit(s.id);
   }
 
   markDirty();

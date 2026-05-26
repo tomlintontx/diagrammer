@@ -1,4 +1,5 @@
 import {
+  ARROW_DIRECTIONS,
   FILL_STYLES,
   FONT_FAMILIES,
   MAX_PENCIL_POINTS,
@@ -54,6 +55,11 @@ export function sanitizeStyleDefaults(raw, defaults) {
     opacity: clampNumber(merged.opacity, 0, 1, defaults.opacity),
     strokeStyle: sanitizeEnum(merged.strokeStyle, STROKE_STYLES, defaults.strokeStyle),
     fillStyle: sanitizeEnum(merged.fillStyle, FILL_STYLES, defaults.fillStyle),
+    arrowDirection: sanitizeEnum(
+      merged.arrowDirection,
+      ARROW_DIRECTIONS,
+      defaults.arrowDirection ?? 'end',
+    ),
   };
 }
 

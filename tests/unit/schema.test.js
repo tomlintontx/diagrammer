@@ -28,4 +28,21 @@ describe('shape schema', () => {
     const out = validateAndNormalizeShapes([{ type: 'bogus' }, { type: 'rect', x: 0, y: 0, w: 10, h: 10 }], defaults);
     expect(out).toHaveLength(1);
   });
+
+  it('normalizes connector arrow directions', () => {
+    const arrow = normalizeShape({ type: 'arrow', x1: 0, y1: 0, x2: 10, y2: 0 }, defaults);
+    const line = normalizeShape({ type: 'line', x1: 0, y1: 0, x2: 10, y2: 0 }, defaults);
+    const both = normalizeShape({
+      type: 'arrow',
+      x1: 0,
+      y1: 0,
+      x2: 10,
+      y2: 0,
+      arrowDirection: 'both',
+    }, defaults);
+
+    expect(arrow.arrowDirection).toBe('end');
+    expect(line.arrowDirection).toBe('none');
+    expect(both.arrowDirection).toBe('both');
+  });
 });

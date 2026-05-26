@@ -26,9 +26,7 @@ export function shapeBBox(s) {
       return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
     }
     case 'text': {
-      const lines = (s.text || '').split('\n');
-      const lh = (s.fontSize || 24) * 1.35;
-      return { x: s.x, y: s.y, w: s.w || 120, h: Math.max(lh, lines.length * lh) };
+      return { x: s.x, y: s.y, w: s.w || 120, h: s.h || 40 };
     }
     default:
       return { x: 0, y: 0, w: 0, h: 0 };
@@ -48,7 +46,9 @@ export function shapeMidpoints(s) {
 
 function shapeExportPadding(s) {
   const sw = (s.strokeWidth || 1) * 3;
-  if (s.type === 'arrow') return sw + 18;
+  if (s.type === 'arrow' || (s.type === 'line' && s.arrowDirection && s.arrowDirection !== 'none')) {
+    return sw + 18;
+  }
   if (s.type === 'pencil') return sw + 8;
   if (s.type === 'line') return sw + 4;
   return sw + 4;

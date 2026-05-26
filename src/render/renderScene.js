@@ -6,6 +6,7 @@ import {
   INLINE_TEXT_PADDING_X,
   INLINE_TEXT_PADDING_Y,
   textFont,
+  wrapText,
 } from '../core/textLayout.js';
 
 function getRoughOptions(s) {
@@ -22,19 +23,28 @@ function getRoughOptions(s) {
   return opts;
 }
 
-function drawArrowhead(ctx, s) {
-  const dx = s.x2 - s.x1;
-  const dy = s.y2 - s.y1;
+function arrowDirection(s) {
+  if (s.arrowDirection) return s.arrowDirection;
+  return s.type === 'line' ? 'none' : 'end';
+}
+
+function drawArrowhead(ctx, s, atStart = false) {
+  const tipX = atStart ? s.x1 : s.x2;
+  const tipY = atStart ? s.y1 : s.y2;
+  const tailX = atStart ? s.x2 : s.x1;
+  const tailY = atStart ? s.y2 : s.y1;
+  const dx = tipX - tailX;
+  const dy = tipY - tailY;
   const len = Math.hypot(dx, dy);
   if (len < 1) return;
   const ux = dx / len;
   const uy = dy / len;
   const size = 12 + (s.strokeWidth || 1) * 2;
   const angle = 0.45;
-  const ax1 = s.x2 - size * (ux * Math.cos(angle) - uy * Math.sin(angle));
-  const ay1 = s.y2 - size * (uy * Math.cos(angle) + ux * Math.sin(angle));
-  const ax2 = s.x2 - size * (ux * Math.cos(-angle) - uy * Math.sin(-angle));
-  const ay2 = s.y2 - size * (uy * Math.cos(-angle) + ux * Math.sin(-angle));
+  const ax1 = tipX - size * (ux * Math.cos(angle) - uy * Math.sin(angle));
+  const ay1 = tipY - size * (uy * Math.cos(angle) + ux * Math.sin(angle));
+  const ax2 = tipX - size * (ux * Math.cos(-angle) - uy * Math.sin(-angle));
+  const ay2 = tipY - size * (uy * Math.cos(-angle) + ux * Math.sin(-angle));
 
   ctx.save();
   ctx.strokeStyle = s.strokeColor || '#1e1e1e';
@@ -42,31 +52,51 @@ function drawArrowhead(ctx, s) {
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(ax1, ay1);
-  ctx.lineTo(s.x2, s.y2);
+  ctx.lineTo(tipX, tipY);
   ctx.lineTo(ax2, ay2);
   ctx.stroke();
   ctx.restore();
 }
 
+function drawArrowheads(ctx, s) {
+  const direction = arrowDirection(s);
+  if (direction === 'start' || direction === 'both') drawArrowhead(ctx, s, true);
+  if (direction === 'end' || direction === 'both') drawArrowhead(ctx, s, false);
+}
+
 function drawStandaloneText(ctx, s) {
   if (!s.text) return;
   const fontSize = s.fontSize || 24;
+  const padX = Math.min(INLINE_TEXT_PADDING_X, Math.max(4, (s.w || 200) / 8));
+  const padY = Math.min(INLINE_TEXT_PADDING_Y, Math.max(4, (s.h || 40) / 8));
+  const maxWidth = Math.max(10, (s.w || 200) - padX * 2);
+  const lineHeight = fontSize * 1.35;
+  const textX = inlineTextX(s, padX, 'left');
+  const lines = wrapText(ctx, s.text, maxWidth, textFont(s, fontSize));
+  const totalHeight = lines.length * lineHeight;
+  let startY = s.y + Math.max(padY, ((s.h || 40) - totalHeight) / 2);
+  if (s.textVerticalAlign === 'top') startY = s.y + padY;
+  if (s.textVerticalAlign === 'bottom') {
+    startY = s.y + (s.h || 40) - padY - totalHeight;
+  }
+
   ctx.save();
+  ctx.beginPath();
+  ctx.rect(s.x, s.y, s.w || 200, s.h || Math.max(40, lineHeight));
+  ctx.clip();
   ctx.globalAlpha = s.opacity != null ? s.opacity : 1;
   ctx.font = textFont(s, fontSize);
   ctx.fillStyle = s.strokeColor || '#1e1e1e';
   ctx.textBaseline = 'top';
   ctx.textAlign = s.textAlign || 'left';
-  const lines = s.text.split('\n');
-  const lh = fontSize * 1.35;
   lines.forEach((line, i) => {
-    ctx.fillText(line, s.x, s.y + i * lh);
+    ctx.fillText(line, textX, startY + i * lineHeight, maxWidth);
   });
   ctx.restore();
 }
 
-function inlineTextX(s, padX) {
-  const align = s.textAlign || 'center';
+function inlineTextX(s, padX, defaultAlign = 'center') {
+  const align = s.textAlign || defaultAlign;
   if (align === 'left') return s.x + padX;
   if (align === 'right') return s.x + s.w - padX;
   return s.x + s.w / 2;
@@ -136,7 +166,7 @@ export function drawShape(ctx, rc, s) {
     case 'arrow':
     case 'line':
       rc.line(s.x1, s.y1, s.x2, s.y2, opts);
-      if (s.type === 'arrow') drawArrowhead(ctx, s);
+      drawArrowheads(ctx, s);
       break;
     case 'pencil':
       if (s.points && s.points.length >= 2) {

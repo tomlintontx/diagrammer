@@ -9,6 +9,8 @@ import {
   fitTextToBox,
   INLINE_TEXT_PADDING_X,
   INLINE_TEXT_PADDING_Y,
+  textFont,
+  wrapText,
 } from '../core/textLayout.js';
 
 const TEXT_SHAPE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'text']);
@@ -25,19 +27,49 @@ export function startTextEdit(shapeId, options = {}) {
   store.editingShapeId = shapeId;
   const wrap = document.getElementById('text-editor-wrap');
   const ta = document.getElementById('text-editor');
+  const measureCtx = document.createElement('canvas').getContext('2d');
   const { sx, sy } = w2s(s.x, s.y);
+  const { sx: sx2, sy: sy2 } = w2s(s.x + (s.w || 200), s.y + (s.h || 40));
+  const overlayW = Math.max(60, sx2 - sx);
+  const overlayH = Math.max(36, sy2 - sy);
 
   if (replacing) {
     s.text = options.replaceWith;
     markDirty();
   }
   ta.value = replacing ? options.replaceWith : s.text || '';
-  ta.style.fontSize = `${(s.fontSize || 24) * store.vp.zoom}px`;
+  const fontSize = (s.fontSize || 24) * store.vp.zoom;
+  ta.style.fontSize = `${fontSize}px`;
   ta.style.fontFamily = `'${sanitizeFontFamily(s.fontFamily, 'Caveat')}', cursive`;
   ta.style.textAlign = s.textAlign || 'left';
   ta.style.color = s.strokeColor || '#1e1e1e';
-  ta.style.minWidth = `${Math.max(120, (s.w || 200) * store.vp.zoom)}px`;
+  ta.style.width = `${overlayW}px`;
+  ta.style.height = `${overlayH}px`;
+  ta.style.minWidth = '60px';
   ta.style.minHeight = '36px';
+  ta.style.resize = 'none';
+  ta.style.overflow = 'hidden';
+  ta.style.whiteSpace = 'pre-wrap';
+  ta.style.overflowWrap = 'break-word';
+
+  function applyStandalonePadding() {
+    const padX = Math.min(INLINE_TEXT_PADDING_X * store.vp.zoom, Math.max(4, overlayW / 8));
+    const padY = Math.min(INLINE_TEXT_PADDING_Y * store.vp.zoom, Math.max(4, overlayH / 8));
+    const lineHeight = fontSize * 1.35;
+    const lines = wrapText(
+      measureCtx,
+      ta.value || ' ',
+      Math.max(10, overlayW - padX * 2),
+      textFont(s, fontSize),
+    );
+    const totalHeight = lines.length * lineHeight;
+    const remainingY = Math.max(0, overlayH - totalHeight);
+    let verticalPad = Math.max(padY, remainingY / 2);
+    if (s.textVerticalAlign === 'top') verticalPad = padY;
+    if (s.textVerticalAlign === 'bottom') verticalPad = Math.max(padY, overlayH - totalHeight - padY);
+    ta.style.lineHeight = `${lineHeight}px`;
+    ta.style.padding = `${verticalPad}px ${padX}px`;
+  }
 
   wrap.style.left = `${sx}px`;
   wrap.style.top = `${sy}px`;
@@ -50,20 +82,31 @@ export function startTextEdit(shapeId, options = {}) {
     ta.select();
   }
 
-  function autoResize() {
-    ta.style.height = 'auto';
-    ta.style.height = `${ta.scrollHeight}px`;
+  function resetStandaloneStyles() {
+    ta.style.width = '';
+    ta.style.height = '';
+    ta.style.minWidth = '';
+    ta.style.minHeight = '';
+    ta.style.resize = '';
+    ta.style.overflow = '';
+    ta.style.whiteSpace = '';
+    ta.style.overflowWrap = '';
+    ta.style.lineHeight = '';
+    ta.style.padding = '';
   }
-  ta.addEventListener('input', autoResize);
-  autoResize();
+
+  function updateStandaloneText() {
+    applyStandalonePadding();
+  }
+
+  ta.addEventListener('input', updateStandaloneText);
+  applyStandalonePadding();
 
   function commit() {
     const text = ta.value;
     const sh = store.shapes.find((item) => item.id === store.editingShapeId);
     if (sh) {
       sh.text = text;
-      sh.w = Math.max(120, ta.offsetWidth / store.vp.zoom);
-      sh.h = Math.max(40, ta.offsetHeight / store.vp.zoom);
       if (!text.trim()) {
         store.shapes = store.shapes.filter((item) => item.id !== store.editingShapeId);
       }
@@ -71,9 +114,10 @@ export function startTextEdit(shapeId, options = {}) {
       scheduleAutosave();
       markDirty();
     }
+    resetStandaloneStyles();
     wrap.classList.remove('is-open');
     ta.style.display = 'none';
-    ta.removeEventListener('input', autoResize);
+    ta.removeEventListener('input', updateStandaloneText);
     store.editingShapeId = null;
     resetTextToolPlacement();
     store.canvas.focus();
@@ -88,9 +132,10 @@ export function startTextEdit(shapeId, options = {}) {
         scheduleAutosave();
         markDirty();
       }
+      resetStandaloneStyles();
       wrap.classList.remove('is-open');
       ta.style.display = 'none';
-      ta.removeEventListener('input', autoResize);
+      ta.removeEventListener('input', updateStandaloneText);
       ta.removeEventListener('keydown', onKey);
       store.editingShapeId = null;
       resetTextToolPlacement();
