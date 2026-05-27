@@ -10,6 +10,7 @@ import { setTool } from './setTool.js';
 const ACCEPTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp']);
 const MAX_CANVAS_IMAGE_SIDE = 480;
 const PASTE_OFFSET = 24;
+let lastPasteHandledAt = 0;
 
 function isTextEntryActive() {
   const el = document.activeElement;
@@ -18,11 +19,14 @@ function isTextEntryActive() {
 }
 
 function clipboardImageFiles(dataTransfer) {
-  const items = [...(dataTransfer?.items || [])];
-  return items
+  const files = [...(dataTransfer?.files || [])].filter((file) => file.type.startsWith('image/'));
+  if (files.length) return files;
+
+  const itemFiles = [...(dataTransfer?.items || [])]
     .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
     .map((item) => item.getAsFile())
     .filter(Boolean);
+  return itemFiles;
 }
 
 function readFileAsDataUrl(file) {
@@ -100,6 +104,26 @@ async function pasteImageFiles(files) {
   markDirty();
 }
 
+async function clipboardApiImageFiles() {
+  if (!navigator.clipboard?.read) return [];
+
+  const entries = await navigator.clipboard.read();
+  const files = [];
+  for (const entry of entries) {
+    const type = entry.types.find((itemType) => ACCEPTED_IMAGE_TYPES.has(itemType));
+    if (!type) continue;
+    const blob = await entry.getType(type);
+    files.push(new File([blob], 'pasted-image', { type }));
+  }
+  return files;
+}
+
+function pasteAppClipboard() {
+  if (!store.clipboard?.length) return false;
+  pasteClipboard();
+  return true;
+}
+
 async function onPaste(e) {
   if (isTextEntryActive()) return;
 
@@ -108,18 +132,43 @@ async function onPaste(e) {
     e.preventDefault();
     try {
       await pasteImageFiles(files);
+      lastPasteHandledAt = Date.now();
     } catch (err) {
       showError(err.message || 'Could not paste image.');
     }
     return;
   }
 
-  if (store.clipboard?.length) {
+  if (pasteAppClipboard()) {
     e.preventDefault();
-    pasteClipboard();
+    lastPasteHandledAt = Date.now();
   }
 }
 
+export async function handlePasteShortcut() {
+  if (isTextEntryActive()) return false;
+  if (Date.now() - lastPasteHandledAt < 250) return true;
+
+  try {
+    const files = await clipboardApiImageFiles();
+    if (files.length) {
+      await pasteImageFiles(files);
+      lastPasteHandledAt = Date.now();
+      return true;
+    }
+  } catch {
+    // The paste event may still provide clipboard data in browsers that block
+    // direct Clipboard API reads, so only fall back to the app clipboard here.
+  }
+
+  if (pasteAppClipboard()) {
+    lastPasteHandledAt = Date.now();
+    return true;
+  }
+
+  return false;
+}
+
 export function initClipboardPaste() {
-  document.addEventListener('paste', onPaste);
+  window.addEventListener('paste', onPaste, { capture: true });
 }
