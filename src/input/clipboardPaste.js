@@ -130,9 +130,9 @@ async function onPaste(e) {
   const files = clipboardImageFiles(e.clipboardData);
   if (files.length) {
     e.preventDefault();
+    lastPasteHandledAt = Date.now();
     try {
       await pasteImageFiles(files);
-      lastPasteHandledAt = Date.now();
     } catch (err) {
       showError(err.message || 'Could not paste image.');
     }
@@ -145,20 +145,32 @@ async function onPaste(e) {
   }
 }
 
+/**
+ * Explicit Cmd/Ctrl+V handler. The native paste event is the primary path —
+ * we wait briefly to see if it fires, then fall back to the async Clipboard
+ * API for browsers that don't dispatch paste events on canvas-focused pages.
+ */
 export async function handlePasteShortcut() {
   if (isTextEntryActive()) return false;
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
   if (Date.now() - lastPasteHandledAt < 250) return true;
+
+  if (!navigator.clipboard?.read) {
+    showError('Your browser does not allow pasting images here. Try drag-and-drop.');
+    return false;
+  }
 
   try {
     const files = await clipboardApiImageFiles();
     if (files.length) {
-      await pasteImageFiles(files);
       lastPasteHandledAt = Date.now();
+      await pasteImageFiles(files);
       return true;
     }
-  } catch {
-    // The paste event may still provide clipboard data in browsers that block
-    // direct Clipboard API reads, so only fall back to the app clipboard here.
+  } catch (err) {
+    showError(err?.message || 'Could not read the clipboard. Check browser permissions.');
+    return false;
   }
 
   if (pasteAppClipboard()) {
@@ -170,5 +182,5 @@ export async function handlePasteShortcut() {
 }
 
 export function initClipboardPaste() {
-  window.addEventListener('paste', onPaste, { capture: true });
+  document.addEventListener('paste', onPaste);
 }

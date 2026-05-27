@@ -115,7 +115,6 @@ function onKeyDown(e) {
         e.preventDefault();
         return;
       case 'v':
-        e.preventDefault();
         handlePasteShortcut();
         return;
       case 'x':
