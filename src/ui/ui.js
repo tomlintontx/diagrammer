@@ -7,7 +7,6 @@ import {
   duplicateSelected,
   deleteSelected,
   copySelected,
-  pasteClipboard,
   cutSelected,
   nudgeSelection,
 } from '../core/commands.js';
@@ -19,6 +18,7 @@ import { sl2wl } from '../core/viewport.js';
 import { initStylePanel, updateStylePanelFromSelection } from './stylePanel.js';
 import { initContextMenu, hideContextMenu } from './contextMenu.js';
 import { initTools, setTool, zoomIn, zoomOut, zoomReset } from '../input/tools.js';
+import { initClipboardPaste } from '../input/clipboardPaste.js';
 import { rafLoop } from '../render/renderLoop.js';
 import { renderSceneToCanvas } from '../render/renderScene.js';
 import { serializeScene, parseSceneJson, downloadSceneJson } from '../scene/format.js';
@@ -115,9 +115,8 @@ function onKeyDown(e) {
         e.preventDefault();
         return;
       case 'v':
-        pasteClipboard();
-        scheduleAutosave();
-        e.preventDefault();
+        // Let the paste event inspect the system clipboard for images before
+        // falling back to the app's internal shape clipboard.
         return;
       case 'x':
         cutSelected();
@@ -347,6 +346,7 @@ export function init() {
   initKeyboard();
   initContextMenu();
   initFileControls();
+  initClipboardPaste();
   initHelpModal();
   initSaveDialog();
   initTools();

@@ -45,4 +45,15 @@ describe('shape schema', () => {
     expect(line.arrowDirection).toBe('none');
     expect(both.arrowDirection).toBe('both');
   });
+
+  it('normalizes raster image shapes', () => {
+    const src = 'data:image/png;base64,aGVsbG8=';
+    const image = normalizeShape({ type: 'image', src, x: 1, y: 2, w: 300, h: 200 }, defaults);
+    const svg = normalizeShape({ type: 'image', src: 'data:image/svg+xml;base64,aGVsbG8=' }, defaults);
+
+    expect(image.type).toBe('image');
+    expect(image.src).toBe(src);
+    expect(image.w).toBe(300);
+    expect(svg).toBe(null);
+  });
 });

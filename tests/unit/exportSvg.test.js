@@ -128,4 +128,24 @@ describe('exportSvg security', () => {
     expect(svg).toContain('<line');
     expect(svg.match(/<path d="/g)).toHaveLength(2);
   });
+
+  it('exports embedded raster images', () => {
+    const src = 'data:image/png;base64,aGVsbG8=';
+    const svg = exportSceneToSvg(
+      [{
+        type: 'image',
+        src,
+        x: 10,
+        y: 20,
+        w: 100,
+        h: 80,
+        opacity: 0.5,
+      }],
+      { minX: 0, minY: 0, width: 140, height: 120 },
+    );
+
+    expect(svg).toContain(`<image href="${src}"`);
+    expect(svg).toContain('width="100" height="80"');
+    expect(svg).toContain('opacity="0.5"');
+  });
 });

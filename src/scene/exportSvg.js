@@ -203,6 +203,10 @@ function shapeToSvg(s, ox, oy) {
     case 'text': {
       return standaloneTextSvg(s, ox, oy);
     }
+    case 'image': {
+      if (!s.src) return '';
+      return `<image href="${esc(s.src)}" x="${esc(s.x + ox)}" y="${esc(s.y + oy)}" width="${esc(s.w)}" height="${esc(s.h)}" opacity="${opacity}" preserveAspectRatio="none"/>`;
+    }
     default:
       return '';
   }

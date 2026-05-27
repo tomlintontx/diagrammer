@@ -12,12 +12,13 @@ import {
   sanitizeColor,
   sanitizeEnum,
   sanitizeFontFamily,
+  sanitizeImageSrc,
   sanitizePencilPoints,
   sanitizeText,
 } from './validation.js';
 
 const SHAPE_TYPES = new Set([
-  'rect', 'ellipse', 'diamond', 'triangle', 'arrow', 'line', 'pencil', 'text',
+  'rect', 'ellipse', 'diamond', 'triangle', 'arrow', 'line', 'pencil', 'text', 'image',
 ]);
 
 function styleFields(raw, styleDefaults) {
@@ -99,6 +100,21 @@ export function normalizeShape(raw, styleDefaults) {
         w: Math.max(10, clampNumber(raw.w, 10, 10_000, 120)),
         h: Math.max(10, clampNumber(raw.h, 10, 10_000, 40)),
       };
+    case 'image': {
+      const src = sanitizeImageSrc(raw.src);
+      if (!src) return null;
+      return {
+        ...base,
+        fillColor: null,
+        text: '',
+        src,
+        mimeType: typeof raw.mimeType === 'string' ? raw.mimeType.slice(0, 64) : '',
+        x: Number(raw.x) || 0,
+        y: Number(raw.y) || 0,
+        w: Math.max(10, clampNumber(raw.w, 10, 10_000, 240)),
+        h: Math.max(10, clampNumber(raw.h, 10, 10_000, 180)),
+      };
+    }
     default:
       return null;
   }

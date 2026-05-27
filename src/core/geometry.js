@@ -14,6 +14,7 @@ export function shapeBBox(s) {
     case 'ellipse':
     case 'diamond':
     case 'triangle':
+    case 'image':
       return { x: s.x, y: s.y, w: s.w, h: s.h };
     case 'arrow':
     case 'line': {

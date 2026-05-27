@@ -1,5 +1,6 @@
 import rough from 'roughjs/bundled/rough.esm.js';
 import { shapeBBox, trianglePoints } from '../core/geometry.js';
+import { markDirty } from '../core/store.js';
 import { drawResizeHandles, drawLineEndpointHandles, isLineShape, isShapeInViewport } from '../core/resize.js';
 import {
   fitTextToBox,
@@ -8,6 +9,8 @@ import {
   textFont,
   wrapText,
 } from '../core/textLayout.js';
+
+const imageCache = new Map();
 
 function getRoughOptions(s) {
   const opts = {
@@ -134,6 +137,42 @@ function drawShapeInlineText(ctx, s) {
   ctx.restore();
 }
 
+function cachedImage(src) {
+  if (!src || typeof Image === 'undefined') return null;
+  let entry = imageCache.get(src);
+  if (entry) return entry.loaded ? entry.img : null;
+
+  const img = new Image();
+  entry = { img, loaded: false, errored: false };
+  imageCache.set(src, entry);
+  img.onload = () => {
+    entry.loaded = true;
+    markDirty();
+  };
+  img.onerror = () => {
+    entry.errored = true;
+    markDirty();
+  };
+  img.src = src;
+  return null;
+}
+
+function drawImageShape(ctx, s) {
+  const img = cachedImage(s.src);
+  if (img) {
+    ctx.drawImage(img, s.x, s.y, s.w, s.h);
+    return;
+  }
+
+  ctx.save();
+  ctx.fillStyle = '#f1f3f5';
+  ctx.strokeStyle = '#adb5bd';
+  ctx.setLineDash([6, 4]);
+  ctx.fillRect(s.x, s.y, s.w, s.h);
+  ctx.strokeRect(s.x, s.y, s.w, s.h);
+  ctx.restore();
+}
+
 /** Draw one shape; ctx must already be in world space */
 export function drawShape(ctx, rc, s) {
   if (!rc) return;
@@ -179,6 +218,9 @@ export function drawShape(ctx, rc, s) {
       break;
     case 'text':
       drawStandaloneText(ctx, s);
+      break;
+    case 'image':
+      drawImageShape(ctx, s);
       break;
     default:
       break;

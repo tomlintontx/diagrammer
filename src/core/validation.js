@@ -2,6 +2,7 @@ import {
   ARROW_DIRECTIONS,
   FILL_STYLES,
   FONT_FAMILIES,
+  MAX_IMAGE_DATA_URL_LENGTH,
   MAX_PENCIL_POINTS,
   MAX_TEXT_LENGTH,
   STROKE_STYLES,
@@ -10,6 +11,7 @@ import {
 } from './constants.js';
 
 const COLOR_RE = /^(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)|none|[a-zA-Z]+)$/;
+const IMAGE_DATA_URL_RE = /^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=]+$/i;
 
 export function clampNumber(value, min, max, fallback) {
   const n = Number(value);
@@ -35,6 +37,13 @@ export function sanitizeFontFamily(value, fallback) {
 export function sanitizeText(value) {
   if (typeof value !== 'string') return '';
   return value.slice(0, MAX_TEXT_LENGTH);
+}
+
+export function sanitizeImageSrc(value) {
+  if (typeof value !== 'string') return '';
+  const s = value.trim();
+  if (s.length > MAX_IMAGE_DATA_URL_LENGTH) return '';
+  return IMAGE_DATA_URL_RE.test(s) ? s : '';
 }
 
 export function sanitizeStyleDefaults(raw, defaults) {

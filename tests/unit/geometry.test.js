@@ -29,6 +29,15 @@ describe('shapeBBox', () => {
     });
     expect(bb).toEqual({ x: 5, y: 10, w: 90, h: 30 });
   });
+
+  it('returns image dimensions', () => {
+    expect(shapeBBox({ type: 'image', x: 3, y: 4, w: 120, h: 80 })).toEqual({
+      x: 3,
+      y: 4,
+      w: 120,
+      h: 80,
+    });
+  });
 });
 
 describe('normalizeRect', () => {

@@ -15,6 +15,8 @@ export const SCENE_VERSION = 2;
 export const AUTOSAVE_KEY = 'diagrammer:autosave';
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 2.5 * 1024 * 1024;
+export const MAX_IMAGE_DATA_URL_LENGTH = Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 128;
 export const MAX_SHAPES = 10_000;
 export const MAX_PENCIL_POINTS = 50_000;
 export const MAX_TEXT_LENGTH = 64 * 1024;

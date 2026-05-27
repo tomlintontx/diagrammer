@@ -31,6 +31,7 @@ export function hitTest(s, sx, sy) {
 
   switch (s.type) {
     case 'rect':
+    case 'image':
       return wx >= s.x - pad && wx <= s.x + s.w + pad && wy >= s.y - pad && wy <= s.y + s.h + pad;
     case 'ellipse': {
       const cx = s.x + s.w / 2;

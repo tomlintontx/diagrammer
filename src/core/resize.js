@@ -29,7 +29,7 @@ export function getBBoxResizeHandle(bb, sx, sy, pad = 6) {
   return null;
 }
 
-const RESIZABLE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle', 'text']);
+const RESIZABLE_TYPES = new Set(['rect', 'ellipse', 'diamond', 'triangle', 'text', 'image']);
 
 export function isLineShape(s) {
   return s.type === 'arrow' || s.type === 'line';
