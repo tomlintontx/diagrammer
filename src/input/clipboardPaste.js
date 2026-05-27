@@ -2,9 +2,16 @@ import { MAX_IMAGE_BYTES } from '../core/constants.js';
 import { saveHistory } from '../core/history.js';
 import { uid } from '../core/math.js';
 import { store, markDirty } from '../core/store.js';
-import { getPasteTargetWorld, pasteClipboard } from '../core/commands.js';
+import {
+  copySelected,
+  cutSelected,
+  getPasteTargetWorld,
+  pasteClipboard,
+} from '../core/commands.js';
 import { showError } from '../ui/toast.js';
 import { setTool } from './setTool.js';
+
+const APP_CLIPBOARD_MARKER = 'diagrammer/shapes';
 
 const ACCEPTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp']);
 const MAX_CANVAS_IMAGE_SIDE = 480;
@@ -177,6 +184,34 @@ export async function handlePasteShortcut() {
   return false;
 }
 
+function writeAppClipboardMarker(e) {
+  try {
+    e.clipboardData.setData('text/plain', APP_CLIPBOARD_MARKER);
+  } catch {
+    // Some browsers may forbid writing; ignore — store.clipboard still works.
+  }
+}
+
+function onCopy(e) {
+  if (isTextEntryActive()) return;
+  if (!store.selectedIds.size) return;
+
+  copySelected();
+  e.preventDefault();
+  writeAppClipboardMarker(e);
+}
+
+function onCut(e) {
+  if (isTextEntryActive()) return;
+  if (!store.selectedIds.size) return;
+
+  cutSelected();
+  e.preventDefault();
+  writeAppClipboardMarker(e);
+}
+
 export function initClipboardPaste() {
   document.addEventListener('paste', onPaste);
+  document.addEventListener('copy', onCopy);
+  document.addEventListener('cut', onCut);
 }

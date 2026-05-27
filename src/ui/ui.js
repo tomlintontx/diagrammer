@@ -6,8 +6,6 @@ import { NUDGE_LARGE, NUDGE_SMALL } from '../core/constants.js';
 import {
   duplicateSelected,
   deleteSelected,
-  copySelected,
-  cutSelected,
   nudgeSelection,
 } from '../core/commands.js';
 import { exportSceneToSvg, downloadSvg } from '../scene/exportSvg.js';
@@ -111,16 +109,12 @@ function onKeyDown(e) {
         e.preventDefault();
         return;
       case 'c':
-        copySelected();
-        e.preventDefault();
+      case 'x':
+        // Native copy/cut events handle this so we can write to the system
+        // clipboard. See initClipboardPaste().
         return;
       case 'v':
         handlePasteShortcut();
-        return;
-      case 'x':
-        cutSelected();
-        scheduleAutosave();
-        e.preventDefault();
         return;
       case 's':
         saveSceneToFile();
