@@ -2,8 +2,7 @@ import { MAX_IMAGE_BYTES } from '../core/constants.js';
 import { saveHistory } from '../core/history.js';
 import { uid } from '../core/math.js';
 import { store, markDirty } from '../core/store.js';
-import { s2w } from '../core/viewport.js';
-import { pasteClipboard } from '../core/commands.js';
+import { getPasteTargetWorld, pasteClipboard } from '../core/commands.js';
 import { showError } from '../ui/toast.js';
 import { setTool } from './setTool.js';
 
@@ -58,13 +57,13 @@ function pastedImageSize(width, height) {
   };
 }
 
-function viewportCenter() {
-  const canvasWidth = store.canvas?.clientWidth || window.innerWidth || 800;
-  const canvasHeight = store.canvas?.clientHeight || window.innerHeight || 600;
-  return s2w(canvasWidth / 2, canvasHeight / 2);
+function imagePasteTarget() {
+  const target = getPasteTargetWorld();
+  if (target) return target;
+  return { wx: 0, wy: 0 };
 }
 
-async function imageShapeFromFile(file, index) {
+async function imageShapeFromFile(file, index, target) {
   if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
     throw new Error('Only PNG, JPEG, GIF, and WebP images can be pasted.');
   }
@@ -75,7 +74,6 @@ async function imageShapeFromFile(file, index) {
   const src = await readFileAsDataUrl(file);
   const dimensions = await loadImageDimensions(src);
   const { w, h } = pastedImageSize(dimensions.width, dimensions.height);
-  const { wx, wy } = viewportCenter();
   const offset = index * PASTE_OFFSET;
 
   return {
@@ -83,8 +81,8 @@ async function imageShapeFromFile(file, index) {
     type: 'image',
     src,
     mimeType: file.type,
-    x: wx - w / 2 + offset,
-    y: wy - h / 2 + offset,
+    x: target.wx - w / 2 + offset,
+    y: target.wy - h / 2 + offset,
     w,
     h,
     opacity: 1,
@@ -92,9 +90,10 @@ async function imageShapeFromFile(file, index) {
 }
 
 async function pasteImageFiles(files) {
+  const target = imagePasteTarget();
   const shapes = [];
   for (const file of files) {
-    shapes.push(await imageShapeFromFile(file, shapes.length));
+    shapes.push(await imageShapeFromFile(file, shapes.length, target));
   }
 
   store.shapes.push(...shapes);
@@ -156,21 +155,18 @@ export async function handlePasteShortcut() {
   await new Promise((resolve) => setTimeout(resolve, 50));
   if (Date.now() - lastPasteHandledAt < 250) return true;
 
-  if (!navigator.clipboard?.read) {
-    showError('Your browser does not allow pasting images here. Try drag-and-drop.');
-    return false;
-  }
-
-  try {
-    const files = await clipboardApiImageFiles();
-    if (files.length) {
-      lastPasteHandledAt = Date.now();
-      await pasteImageFiles(files);
-      return true;
+  if (navigator.clipboard?.read) {
+    try {
+      const files = await clipboardApiImageFiles();
+      if (files.length) {
+        lastPasteHandledAt = Date.now();
+        await pasteImageFiles(files);
+        return true;
+      }
+    } catch {
+      // Clipboard API failed (permission, focus, unsupported MIME).
+      // Fall through silently so the internal app clipboard still works.
     }
-  } catch (err) {
-    showError(err?.message || 'Could not read the clipboard. Check browser permissions.');
-    return false;
   }
 
   if (pasteAppClipboard()) {

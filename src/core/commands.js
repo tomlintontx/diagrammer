@@ -1,8 +1,9 @@
 import { store, markDirty } from '../core/store.js';
-import { sl2wl } from '../core/viewport.js';
+import { s2w, sl2wl } from '../core/viewport.js';
 import { saveHistory } from '../core/history.js';
 import { updateConnectedArrows } from './snap.js';
 import { cloneShapeWithOffset } from '../core/shapeClone.js';
+import { shapeBBox } from './geometry.js';
 
 export function applyStyleToSelection(prop, value, recordHistory = true) {
   store.styleDefaults[prop] = value;
@@ -37,12 +38,48 @@ export function duplicateSelected() {
   markDirty();
 }
 
+function clipboardCentroid(shapes) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const s of shapes) {
+    const bb = shapeBBox(s);
+    if (bb.x < minX) minX = bb.x;
+    if (bb.y < minY) minY = bb.y;
+    if (bb.x + bb.w > maxX) maxX = bb.x + bb.w;
+    if (bb.y + bb.h > maxY) maxY = bb.y + bb.h;
+  }
+  return { cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
+}
+
+export function getPasteTargetWorld() {
+  if (store.lastPointer) {
+    return s2w(store.lastPointer.sx, store.lastPointer.sy);
+  }
+  if (store.canvas) {
+    return s2w(store.canvas.clientWidth / 2, store.canvas.clientHeight / 2);
+  }
+  return null;
+}
+
 export function pasteClipboard() {
   if (!store.clipboard?.length) return;
-  const offset = sl2wl(16);
+
+  const target = getPasteTargetWorld();
+  let dx;
+  let dy;
+  if (target) {
+    const { cx, cy } = clipboardCentroid(store.clipboard);
+    dx = target.wx - cx;
+    dy = target.wy - cy;
+  } else {
+    dx = dy = sl2wl(16);
+  }
+
   const newIds = new Set();
   for (const shape of store.clipboard) {
-    const clone = cloneShapeWithOffset(shape, offset);
+    const clone = cloneShapeWithOffset(shape, dx, dy);
     store.shapes.push(clone);
     newIds.add(clone.id);
   }

@@ -47,6 +47,7 @@ export const store = {
   historyIndex: -1,
   ctxMenuShapeId: null,
   clipboard: null,
+  lastPointer: null,
   _lastSelectionSig: '',
 };
 

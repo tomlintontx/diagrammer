@@ -57,6 +57,7 @@ function onMouseDown(e) {
 export function onMouseMove(e) {
   const { sx, sy } = getPos(e);
   const { wx, wy } = s2w(sx, sy);
+  store.lastPointer = { sx, sy };
 
   if (store.isPanning) {
     handlePanMove(e);

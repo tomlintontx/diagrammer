@@ -13,6 +13,10 @@ describe('commands', () => {
     store.shapes = [{ id: 'r1', type: 'rect', x: 0, y: 0, w: 20, h: 20 }];
     store.selectedIds = new Set(['r1']);
     store.clipboard = null;
+    store.canvas = null;
+    store.lastPointer = null;
+    store.vp.x = 0;
+    store.vp.y = 0;
     store.vp.zoom = 1;
   });
 
@@ -35,6 +39,15 @@ describe('commands', () => {
     pasteClipboard();
     expect(store.shapes).toHaveLength(2);
     expect(store.selectedIds.size).toBe(1);
+  });
+
+  it('pastes clipboard centered at the cursor when available', () => {
+    copySelected();
+    store.lastPointer = { sx: 200, sy: 150 };
+    pasteClipboard();
+    const pasted = store.shapes[1];
+    expect(pasted.x + pasted.w / 2).toBe(200);
+    expect(pasted.y + pasted.h / 2).toBe(150);
   });
 
   it('applies formatting to every selected shape', () => {

@@ -18,4 +18,20 @@ describe('cloneShapeWithOffset', () => {
     expect(clone.toShapeId).toBeNull();
     expect(clone.x1).toBe(5);
   });
+
+  it('accepts separate dx and dy offsets', () => {
+    const rect = cloneShapeWithOffset({ id: 'r', type: 'rect', x: 0, y: 0, w: 10, h: 10 }, 5, -3);
+    expect(rect.x).toBe(5);
+    expect(rect.y).toBe(-3);
+
+    const arrow = cloneShapeWithOffset(
+      { id: 'a', type: 'arrow', x1: 0, y1: 0, x2: 10, y2: 10 },
+      2,
+      7,
+    );
+    expect(arrow.x1).toBe(2);
+    expect(arrow.y1).toBe(7);
+    expect(arrow.x2).toBe(12);
+    expect(arrow.y2).toBe(17);
+  });
 });
